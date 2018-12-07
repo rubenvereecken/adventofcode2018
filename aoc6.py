@@ -37,10 +37,11 @@ def part_one():
                    max(cell[1] for cell in coords)+1)
     grid = np.ones(bottomright, dtype=np.int8) * -1
 
+    # Store here Manhattan distances
     grid_distances = np.zeros_like(grid)
     neighbours = partial(get_neighbours, grid)
 
-    fringe = []
+    fringe = [] # Pretend this is a queue alright
 
     # Initialise the fringe with all distance=1
     for coord_idx, coord in enumerate(coords):
@@ -60,9 +61,10 @@ def part_one():
         elif grid[cell] >= 0 and grid_distances[cell] > distance:
             assert False, "Impossible really"
         elif grid[cell] >= 0 and grid_distances[cell] < distance:
+            assert grid_distances[cell] != 0, 'Havent even been'
             # This one has already been covered, abort
             pass
-        else:
+        elif grid[cell] == -1:
             assert grid[cell] < 0
             # Mark it with the parent
             grid[cell] = parent_idx
@@ -74,6 +76,9 @@ def part_one():
                 # Don't re-do cells beloning to the same beacon
                 if grid[neighbour] == parent_idx: continue
                 fringe.append((neighbour, parent_idx, distance+1))
+        else:
+            # Already marked as shared
+            assert grid[cell] == Marker.SHARED.value
 
     # The ones on the sides go on foreeeever
     infinite_idxs = np.unique(np.hstack([
